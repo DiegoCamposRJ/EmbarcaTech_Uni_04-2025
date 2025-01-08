@@ -1,0 +1,5 @@
+# Ignorar arquivos temporários
+*.tmp
+
+# Ignorar pastas específicas
+/pasta_a_ignorar/
