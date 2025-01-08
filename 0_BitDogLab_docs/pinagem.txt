@@ -1,0 +1,70 @@
+Organização dos Pinos da BitDogLab
+
+CONFIGURAÇÃO DE PINOS:
+#include “pico/stdlib.h”
+int main(){
+	//Define variável do pino(não obrigatório, porém bastante eficiente)
+	const uint PINO1 = 16;
+	const uint PINO2 = 17;
+	//Inicia o pino
+	gpio_init(PINO1);
+	gpio_init(PINO2);
+	//Define tipo de pino
+	gpio_set_dir(PINO1, GPIO_OUT);
+	gpio_set_dir(PINO1, GPIO_IN);
+	//Coloca valor, no caso HIGH ou ligado
+	gpio_put(PINO1,1);
+	//Coloca valor, no caso LOW ou desligado
+	gpio_put(PINO1,0);
+	int valor = gpio_read(PINO2);
+}
+
+PERIFERICOS:
+LED RGB
+•	Vermelho: GPIO13 (OUTPUT, resistor de 220 ohms) 
+•	Verde: GPIO11 (OUTPUT, resistor de 220 ohms) 
+•	Azul: GPIO12 (OUTPUT, resistor de 150 ohms) 
+
+Botões
+•	Botão A: GPIO5 (INPUT_PULLUP) 
+•	Botão B: GPIO6 (INPUT_PULLUP) 
+•	Botão RESET: RUN (INPUT)
+
+Buzzers
+•	Buzzer A: GPIO21 (OUTPUT, via transistor) 
+•	Buzzer B: GPIO10 (OUTPUT)
+
+Matriz de LEDs WS2812B
+•	NeoPixel: GPIO7 (OUTPUT) 
+
+Joystick Analógico
+•	VRy: GPIO26 (INPUT, analógico) 
+•	VRx: GPIO27 (INPUT, analógico) 
+•	Botão SW: GPIO22 (INPUT_PULLUP) 
+
+Display OLED (I2C)
+•	SDA: GPIO14 (OUTPUT) 
+•	SCL: GPIO15 (OUTPUT) 
+
+Microfone de Eletreto
+•	Saída: GPIO28 (INPUT, analógico) 
+
+Conector IDC (Expansão)
+•	GPIO4: Livre (OUTPUT/INPUT) 
+•	GPIO8: Livre (OUTPUT/INPUT) 
+•	GPIO9: Livre (OUTPUT/INPUT) 
+•	GPIO16: SPI RX (OUTPUT) 
+•	GPIO17: SPI CSn (OUTPUT) 
+•	GPIO18: SPI SCK (OUTPUT) 
+•	GPIO19: SPI TX (OUTPUT) 
+
+Barra de Terminais
+•	DIG0: GPIO0 (OUTPUT/INPUT) 
+•	DIG1: GPIO1 (OUTPUT/INPUT) 
+•	DIG2: GPIO2 (OUTPUT/INPUT) 
+•	DIG3: GPIO3 (OUTPUT/INPUT) 
+Conectores I2C/UART
+•	I2C0 SDA: GPIO0 
+•	I2C0 SCL: GPIO1 
+•	I2C1 SDA: GPIO2 
+•	I2C1 SCL: GPIO3 
