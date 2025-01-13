@@ -1,6 +1,6 @@
 //Diego da Silva Campos do Nascimento - diegocamposrj@gmail.com
 //1 - Faça um código para piscar o led da placa Raspberry PI Pico W.
-//Esse código só funciona na Pico W
+//Esse código só funciona na Pico W, biblioteca Wifi
 
 #include "pico/stdlib.h"
 #ifdef CYW43_WL_GPIO_LED_PIN
