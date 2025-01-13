@@ -1,5 +1,6 @@
 {
     "configurations": [
+        //bin
         {
             "name": "Win32",
             "includePath": [
