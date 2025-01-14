@@ -1,0 +1,9 @@
+feat- um novo recurso para a aplicação;
+fix- correção de bugs;
+docs- alterações em arquivos relacionados á documentações;
+style- alteração de estilização, formatação;
+refactor-  codigo de refatoração, que  tem uma mudança transparente para o usuário final;
+perf- alterações relacionadas à performance;
+test- criação ou modificação de teste;
+chore- alterações em arquivos de configuração, build, distribuição, CI ou qual quer coisa 
+que envolva diretamente o codigo da aplicação para o usuário final;
