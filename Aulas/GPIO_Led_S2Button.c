@@ -1,6 +1,6 @@
-//Aula 14-01-2024 Exer01
+//Aula 14-01-2024 Exer01-https://github.com/DiegoCamposRJ/EmbarcaTech_Uni_04-2025/blob/main/resources/exer_GPIO-Led_leitura2Button.JPG
 //https://wokwi.com/projects/420100735187586049
-
+//esquema https://github.com/DiegoCamposRJ/EmbarcaTech_Uni_04-2025/blob/main/resources/GPIO_LED_S_2Button-esquema.JPG
 
 #include <stdio.h>
 #include "pico/stdlib.h"
@@ -18,7 +18,8 @@ void led_rgb_put(bool r, bool g, bool b){
 }
 
 int main(){
-  Serial.begin(115200);
+    //uso do serial só se aplica para o Wokwi
+    Serial.begin(115200);
     //stdio_init_all();
 
     gpio_init(LED_R);
