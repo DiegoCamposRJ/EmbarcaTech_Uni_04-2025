@@ -1,5 +1,5 @@
 //Diego da Silva Campos do Nascimento-diegocamposrj@gmail.com
-//Esquema-
+//Esquema-https://github.com/DiegoCamposRJ/EmbarcaTech_Uni_04-2025/blob/main/resources/TCD_M4x4_Led-esquema.JPG
 //https://wokwi.com/projects/420112231014771713
 #include <stdio.h>
 #include "pico/stdlib.h"
