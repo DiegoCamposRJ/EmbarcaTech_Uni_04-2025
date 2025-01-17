@@ -1,5 +1,5 @@
 # Ignorar arquivos temporários
 *.tmp
-.vscode
+
 # Ignorar pastas específicas
-/pasta_a_ignorar/
+/.vscode/
