@@ -2,4 +2,4 @@
 *.tmp
 
 # Ignorar pastas específicas
-.vscode/
+\.vscode
