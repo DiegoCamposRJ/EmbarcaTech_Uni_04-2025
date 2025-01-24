@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = 'path-to-your-firmware.hex'
+uf2 = 'path-to-your-firmware.uf2'
