@@ -1,0 +1,211 @@
+Vou analisar seu código e propor melhorias para otimizar o desempenho, consumo de recursos e legibilidade. Aqui estão as principais alterações sugeridas:
+
+### 1. **Otimização do Teclado Matricial**
+**Problema:** O polling bloqueante e o debounce simples podem ser melhorados.
+```c
+// Antes
+char leitura_teclado() {
+    for (int row = 0; ...) {
+        gpio_put(Linha[row], SET);
+        // ...
+        sleep_ms(50); // Bloqueante
+    }
+}
+
+// Sugestão (debounce não bloqueante e varredura otimizada)
+#define DEBOUNCE_MS 20
+uint32_t last_key_time = 0;
+
+char leitura_teclado() {
+    static char last_key = '\0';
+    static bool key_released = true;
+    
+    for (int row = 0; row < 4; row++) {
+        gpio_put(Linha[row], SET);
+        sleep_us(10); // Estabilização rápida
+        
+        for (int col = 0; col < 4; col++) {
+            if (gpio_get(Coluna[col])) {
+                if (to_ms_since_boot(get_absolute_time()) - last_key_time > DEBOUNCE_MS && key_released) {
+                    last_key_time = to_ms_since_boot(get_absolute_time());
+                    key_released = false;
+                    gpio_put(Linha[row], RESET);
+                    return teclas[row][col];
+                }
+            } else {
+                key_released = true;
+            }
+        }
+        gpio_put(Linha[row], RESET);
+    }
+    return '\0';
+}
+```
+
+### 2. **Display de 7 Segmentos com Multiplexação Otimizada**
+**Problema:** Atualização lenta devido ao `sleep_ms(2)` e loops fixos.
+```c
+// Usar timer e interrupção para refresh
+#define REFRESH_RATE 200 // Hz
+bool display_update_request = false;
+
+void exibir_numero(uint8_t digito, uint8_t numero) {
+    // Usar máscaras de bits para atualização atômica
+    uint8_t mask = numeros[numero][0] | (numeros[numero][1] << 1) | ...; // Criar máscara
+    gpio_put_masked(0x7F << 10, mask << 10); // Atualiza todos os segmentos de uma vez
+    gpio_put_masked(0x3 << 18, 1 << (18 + digito)); // Ativa dígito
+}
+
+// Timer interrupt handler
+bool repeating_timer_callback(struct repeating_timer *t) {
+    display_update_request = true;
+    return true;
+}
+
+// Inicialização no main()
+struct repeating_timer timer;
+add_repeating_timer_ms(1000 / REFRESH_RATE, repeating_timer_callback, NULL, &timer);
+```
+
+### 3. **Contagem Regressiva Não Bloqueante**
+**Problema:** A função `contagem_regressiva()` bloqueia a execução.
+```c
+// Estado global para controle
+typedef enum {
+    IDLE,
+    COUNTING,
+    BLOCKED
+} SystemState;
+
+SystemState system_state = IDLE;
+uint32_t count_start_time = 0;
+int current_count = 10;
+
+// No loop principal
+void update_countdown() {
+    if (system_state == COUNTING) {
+        uint32_t elapsed = to_ms_since_boot(get_absolute_time()) - count_start_time;
+        current_count = 10 - (elapsed / 1000);
+        
+        if (current_count < 0) {
+            system_state = IDLE;
+            gpio_put(LED_R, RESET);
+        } else {
+            display_update(current_count / 10, current_count % 10);
+        }
+    }
+}
+```
+
+### 4. **Melhoria no Gerenciamento de GPIO**
+**Problema:** Atualizações individuais de pinos são lentas.
+```c
+// Usar máscaras para atualizar múltiplos pinos simultaneamente
+void exibir_numero(uint8_t digito, uint8_t numero) {
+    // Máscara pré-calculada para segmentos
+    static const uint32_t segment_masks[10] = {
+        0x3F00, // 0
+        0x0600, // 1
+        // ... outros números
+    };
+    
+    gpio_put_masked(0x7F << 10, segment_masks[numero]);
+    gpio_put_masked(0x3 << 18, 1 << (18 + digito));
+}
+```
+
+### 5. **Implementação de Estados para o Sistema**
+```c
+typedef enum {
+    INIT,
+    AWAIT_PASSWORD,
+    CHECK_PASSWORD,
+    COUNTDOWN,
+    BLOCKED
+} SystemState;
+
+SystemState current_state = INIT;
+
+void run_state_machine() {
+    switch(current_state) {
+        case INIT:
+            // Inicialização
+            break;
+        case AWAIT_PASSWORD:
+            // Leitura não bloqueante
+            break;
+        // ... outros estados
+    }
+}
+```
+
+### 6. **Otimizações Gerais**
+1. **Remover `printf` de Debug:**
+   ```c
+   // Substituir por
+   #define DEBUG 0
+   #if DEBUG
+   #define debug_printf printf
+   #else
+   #define debug_printf(...)
+   #endif
+   ```
+
+2. **Memória Constante:**
+   ```c
+   // Mover para flash (memória de programa)
+   const uint8_t numeros[10][7] __in_flash() = { ... };
+   ```
+
+3. **Gerenciamento de Energia:**
+   ```c
+   // Durante esperas ociosas
+   __wfi(); // Wait for interrupt
+   ```
+
+### 7. **Versão Otimizada do Main Loop**
+```c
+int main() {
+    stdio_init_all();
+    init_gpio();
+    init_teclado();
+
+    while(true) {
+        switch(system_state) {
+            case INIT:
+                // Lógica de inicialização
+                break;
+                
+            case AWAIT_INPUT:
+                char input[COMP+1] = {0};
+                if(read_password_non_blocking(input)) {
+                    system_state = CHECK_PASSWORD;
+                }
+                break;
+                
+            case CHECK_PASSWORD:
+                // Verificação assíncrona
+                break;
+                
+            case COUNTDOWN:
+                update_countdown();
+                break;
+        }
+        
+        // Atualização do display em background
+        if(display_update_request) {
+            refresh_display();
+            display_update_request = false;
+        }
+    }
+}
+```
+
+### Principais Ganhos:
+1. **Responsividade:** Sistema não bloqueante usando máquina de estados
+2. **Eficiência:** Atualizações de GPIO otimizadas com máscaras
+3. **Consumo:** Uso de `__wfi()` durante períodos ociosos
+4. **Estabilidade:** Debounce melhorado com temporização não bloqueante
+5. **Manutenção:** Código modularizado e documentado
+
+Quer que eu detalhe alguma parte específica das modificações ou explique algum conceito utilizado?
