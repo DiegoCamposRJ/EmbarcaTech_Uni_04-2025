@@ -1,0 +1,68 @@
+[
+    {
+    "nome": "João da Silva",
+    "email": "joao.silva@exemplo.com",
+    "telefone": "11999998888",
+    "cns": "732589687360508"
+  },
+  {
+    "nome": "Luara da Costa",
+    "email": "davicamara@example.com",
+    "telefone": "+55 (79) 92666 2105",
+    "cns": "453513807980367"
+},
+{
+    "nome": "Pedro Fogaça",
+    "email": "davi21@example.org",
+    "telefone": "+55 26 95407-4751",
+    "cns": "727231411744093"
+},
+{
+    "nome": "João Gabriel Silva",
+    "email": "rodriguesheloisa@example.net",
+    "telefone": "+55 33 9 5808-4072",
+    "cns": "935622125383613"
+},
+{
+    "nome": "Raquel Castro",
+    "email": "barrosisabella@example.com",
+    "telefone": "+55 (013) 95368 5871",
+    "cns": "865412763066081"
+},
+{
+    "nome": "Camila Machado",
+    "email": "pmontenegro@example.com",
+    "telefone": "+55 (41) 9 7065 6504",
+    "cns": "027526667818776"
+},
+{
+    "nome": "Ana Carolina da Rosa",
+    "email": "mendesolivia@example.net",
+    "telefone": "+55 (39) 9 7972 0095",
+    "cns": "269095025022410"
+},
+{
+    "nome": "Ana Vitória Garcia",
+    "email": "benjamim08@example.com",
+    "telefone": "+55 (062) 91727 4604",
+    "cns": "242874339275329"
+},
+{
+    "nome": "José Pedro da Conceição",
+    "email": "da-luzpedro@example.org",
+    "telefone": "+55 (069) 93510-6275",
+    "cns": "671758986581606"
+},
+{
+    "nome": "Isabelly Brito",
+    "email": "irodrigues@example.org",
+    "telefone": "+55 (012) 98649-6865",
+    "cns": "229826505683396"
+},
+{
+    "nome": "Vinicius Jesus",
+    "email": "da-motamaria-julia@example.org",
+    "telefone": "+55 38 94279-0326",
+    "cns": "089122568392686"
+}
+]
