@@ -208,7 +208,7 @@ bool verify_password(const char* input) {
 }
 
 void display_menu(int* selected) {
-    lcd_claear();
+    lcd_clear();
     display_message(*selected == 0 ? ">1. Paracetamol" : " 1. Paracetamol", 0);
     display_message(*selected == 1 ? ">2. Ibuprofeno" : " 2. Ibuprofeno", 1);
 }
