@@ -107,24 +107,13 @@ void lcd_write_char(char c) {
     lcd_send_byte(c, 1);
 }
 
-void lcd_write_string(const char* str) {
-    lcd_clear();
-    int len = strlen(str);
-    if (len <= 16) {
-        lcd_set_cursor(0, 0);
-        for (int i = 0; i < len && i < 16; i++) {
-            lcd_write_char(str[i]);
-        }
-    } else {
-        for (int i = 0; i <= len - 16; i++) {
-            lcd_set_cursor(0, 0);
-            for (int j = 0; j < 16; j++) {
-                lcd_write_char(str[i + j]);
-            }
-            sleep_ms(300);
-        }
+void lcd_write_string_at(const char* str, uint8_t row) {
+    lcd_set_cursor(0, row);
+    for (int i = 0; i < 16 && str[i] != '\0'; i++) {
+        lcd_write_char(str[i]);
     }
 }
+
 
 void display_message(const char* message, bool scroll) {
     if (scroll) {
@@ -219,8 +208,9 @@ bool verify_password(const char* input) {
 }
 
 void display_menu(int* selected) {
-    display_message(*selected == 0 ? ">1. Paracetamol" : " 1. Paracetamol", false);
-    display_message(*selected == 1 ? ">2. Ibuprofeno" : " 2. Ibuprofeno", false);
+    lcd_claear();
+    display_message(*selected == 0 ? ">1. Paracetamol" : " 1. Paracetamol", 0);
+    display_message(*selected == 1 ? ">2. Ibuprofeno" : " 2. Ibuprofeno", 1);
 }
 
 int select_medicine() {
