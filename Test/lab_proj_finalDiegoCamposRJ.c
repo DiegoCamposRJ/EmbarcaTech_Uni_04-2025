@@ -1,11 +1,11 @@
 //Diego da Silva Campos do Nascimento-diegocamposrj
 //Projeto final controle de versão
+#include <stdio.h>
+#include <string.h>
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
 #include "hardware/adc.h"
-#include "pico/cyw43_arch.h"
-//#include "lwip/apps/httpd.h" // Comentado, pois não será usado por enquanto
 
 // Definições de pinos
 #define TRIG_PIN 2
@@ -56,9 +56,8 @@ void display_menu(int* selected);
 int select_medicine();
 void release_medicine();
 void check_presence_and_sleep();
-// void init_web_server(); // Comentado
-// void update_web_data(); // Comentado
 
+// Funções do LCD permanecem inalteradas
 void lcd_send_byte(uint8_t data, uint8_t rs) {
     uint8_t buf[4];
     uint8_t backlight = 0x08;
@@ -107,23 +106,24 @@ void lcd_write_char(char c) {
     lcd_send_byte(c, 1);
 }
 
-void lcd_write_string_at(const char* str, uint8_t row) {
-    lcd_set_cursor(0, row);
-    for (int i = 0; i < 16 && str[i] != '\0'; i++) {
+void lcd_write_string(const char* str) {
+    for (int i = 0; str[i] != '\0'; i++) {
         lcd_write_char(str[i]);
     }
 }
 
-
+// Alteração 1: Mensagem "Bem Vindo" mais lenta
 void display_message(const char* message, bool scroll) {
     if (scroll) {
-        lcd_write_string(message);
+        lcd_set_cursor(0, 0); // Começa na linha 0
+        for (int i = 0; message[i] != '\0'; i++) {
+            lcd_write_char(message[i]);
+            sleep_ms(200); // Delay de 200ms entre cada caractere
+        }
     } else {
         lcd_clear();
-        lcd_set_cursor(0, 0);
-        for (int i = 0; message[i] && i < 16; i++) {
-            lcd_write_char(message[i]);
-        }
+        lcd_set_cursor(0, 0); // Começa na linha 0
+        lcd_write_string(message);
     }
 }
 
@@ -155,6 +155,7 @@ void init_peripherals() {
     gpio_init(ECHO_PIN); gpio_set_dir(ECHO_PIN, GPIO_IN);
 }
 
+// Alteração 2: Sensor ultrassônico com delay de 20 segundos
 bool detect_presence() {
     gpio_put(TRIG_PIN, 1);
     sleep_us(10);
@@ -167,9 +168,14 @@ bool detect_presence() {
     uint32_t duration = time_us_32() - start;
 
     float distance = (duration * 0.0343) / 2;
-    return distance < DISTANCE_THRESHOLD;
+    if (distance < DISTANCE_THRESHOLD) {
+        sleep_ms(20000); // Delay de 20 segundos antes de ativar o LCD
+        return true;
+    }
+    return false;
 }
 
+// Alteração 3: Visualização dos caracteres digitados
 char* read_keypad(int max_length) {
     char keys[4][4] = {
         {'1', '2', '3', 'A'},
@@ -178,18 +184,33 @@ char* read_keypad(int max_length) {
         {'*', '0', '#', 'D'}
     };
     int pos = 0;
+    lcd_set_cursor(0, 1); // Move o cursor para a segunda linha
     while (pos < max_length) {
         for (int row = 0; row < 4; row++) {
             gpio_put(ROW1 + row, 0);
-            if (!gpio_get(COL1)) keypad_input[pos++] = keys[row][0];
-            if (!gpio_get(COL2)) keypad_input[pos++] = keys[row][1];
-            if (!gpio_get(COL3)) keypad_input[pos++] = keys[row][2];
+            if (!gpio_get(COL1)) {
+                keypad_input[pos] = keys[row][0];
+                lcd_write_char(keypad_input[pos]); // Exibe o caractere no LCD
+                pos++;
+            }
+            if (!gpio_get(COL2)) {
+                keypad_input[pos] = keys[row][1];
+                lcd_write_char(keypad_input[pos]); // Exibe o caractere no LCD
+                pos++;
+            }
+            if (!gpio_get(COL3)) {
+                keypad_input[pos] = keys[row][2];
+                lcd_write_char(keypad_input[pos]); // Exibe o caractere no LCD
+                pos++;
+            }
             if (!gpio_get(COL4)) {
                 if (keys[row][3] == 'A') {
                     keypad_input[pos] = '\0';
                     return keypad_input;
                 }
-                keypad_input[pos++] = keys[row][3];
+                keypad_input[pos] = keys[row][3];
+                lcd_write_char(keypad_input[pos]); // Exibe o caractere no LCD
+                pos++;
             }
             gpio_put(ROW1 + row, 1);
             sleep_ms(50);
@@ -209,8 +230,10 @@ bool verify_password(const char* input) {
 
 void display_menu(int* selected) {
     lcd_clear();
-    display_message(*selected == 0 ? ">1. Paracetamol" : " 1. Paracetamol", 0);
-    display_message(*selected == 1 ? ">2. Ibuprofeno" : " 2. Ibuprofeno", 1);
+    lcd_set_cursor(0, 0);
+    lcd_write_string(*selected == 0 ? ">1. Paracetamol" : " 1. Paracetamol");
+    lcd_set_cursor(0, 1);
+    lcd_write_string(*selected == 1 ? ">2. Ibuprofeno" : " 2. Ibuprofeno");
 }
 
 int select_medicine() {
@@ -240,27 +263,9 @@ void check_presence_and_sleep() {
     }
 }
 
-/*
-void init_web_server() {
-    cyw43_arch_init();
-    cyw43_arch_enable_sta_mode();
-    if (cyw43_arch_wifi_connect_timeout_ms("SSID", "PASSWORD", CYW43_AUTH_WPA2_AES_PSK, 10000)) {
-        printf("Failed to connect to WiFi\n");
-    } else {
-        printf("Connected to WiFi\n");
-    }
-    // httpd_init();  // Comentado temporariamente
-}
-
-void update_web_data() {
-    printf("Web: %d remédios disponíveis\n", medicine_count);
-}
-*/
-
 int main() {
     stdio_init_all();
     init_peripherals();
-    // init_web_server(); // Comentado temporariamente
 
     while (true) {
         if (detect_presence()) {
@@ -286,7 +291,6 @@ int main() {
             int medicine = select_medicine();
             release_medicine();
             medicine_count--;
-            // update_web_data(); // Comentado temporariamente
 
             check_presence_and_sleep();
         } else {
